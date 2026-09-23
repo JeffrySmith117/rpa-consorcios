@@ -2,10 +2,12 @@
 
 Automação full stack que **navega pelo Portal de Dados Abertos do Banco Central**, consulta o
 *Panorama do Sistema de Consórcios*, **extrai e trata** os indicadores, **gera uma mensagem
-personalizada** e a **envia por WhatsApp**, registrando todo o histórico.
+personalizada** e a **envia por WhatsApp**, registrando todo o histórico. Um **dashboard**
+com gráficos mostra a evolução do mercado, e o **progresso do robô aparece ao vivo** na tela.
 
 ```
-Nova consulta → Executar RPA → Visualizar dados → Gerar mensagem → Enviar WhatsApp → Histórico
+Nova consulta → Executar RPA (progresso ao vivo) → Visualizar dados → Gerar mensagem → Enviar WhatsApp → Histórico
+                                                                                        Dashboard ↗
 ```
 
 ---
@@ -18,37 +20,42 @@ Nova consulta → Executar RPA → Visualizar dados → Gerar mensagem → Envia
 4. [Execução](#execução)
 5. [Configurando o WhatsApp](#configurando-o-whatsapp)
 6. [Como o RPA funciona](#como-o-rpa-funciona)
-7. [Tratamento e validação dos dados](#tratamento-e-validação-dos-dados)
-8. [Tratamento de erros](#tratamento-de-erros)
-9. [Controle de duplicidade](#controle-de-duplicidade)
-10. [Histórico e logs](#histórico-e-logs)
-11. [API](#api)
-12. [Testes](#testes)
-13. [Estrutura de pastas](#estrutura-de-pastas)
-14. [Dificuldades encontradas](#dificuldades-encontradas)
-15. [O que mudaria para produção](#o-que-mudaria-para-produção)
+7. [Progresso do robô em tempo real](#progresso-do-robô-em-tempo-real)
+8. [Tratamento e validação dos dados](#tratamento-e-validação-dos-dados)
+9. [Dashboard](#dashboard)
+10. [Tratamento de erros](#tratamento-de-erros)
+11. [Controle de duplicidade](#controle-de-duplicidade)
+12. [Histórico e logs](#histórico-e-logs)
+13. [API](#api)
+14. [Testes](#testes)
+15. [Estrutura de pastas](#estrutura-de-pastas)
+16. [Dificuldades encontradas](#dificuldades-encontradas)
+17. [O que mudaria para produção](#o-que-mudaria-para-produção)
 
 ---
 
 ## Arquitetura
 
 ```
-┌──────────────────────┐   HTTP/JSON   ┌───────────────────────────────────────────────────┐
-│  Frontend (React)    │ ────────────► │  Backend (FastAPI)                                │
-│  - Nova consulta     │               │                                                   │
-│  - Dados encontrados │               │  api.py ──► services/consultas.py (orquestração)  │
-│  - Mensagem / envio  │               │               │  trava de duplicidade + retry     │
-│  - Histórico         │               │               ▼                                   │
-└──────────────────────┘               │  rpa/bcb_portal.py ──(Playwright/Chromium)──┐     │
-                                       │  rpa/olinda_api.py  (plano B, HTTP direto)  │     │
-                                       │               │                             ▼     │
-                                       │  services/tratamento.py   Portal Olinda do BCB    │
-                                       │  services/mensagem.py                             │
+┌──────────────────────┐   HTTP/JSON   ┌────────────────────────────────────────────────────────┐
+│  Frontend (React)    │ ────────────► │  Backend (FastAPI)                                     │
+│  - Nova consulta     │  POST + poll  │                                                        │
+│    + progresso ao    │ ◄──────────── │  api.py ──► services/consultas.py (orquestração)       │
+│      vivo do robô    │   etapas      │               │  duplicidade + retry + 2º plano        │
+│  - Dados encontrados │               │               ▼                                        │
+│  - Mensagem / envio  │               │  rpa/bcb_portal.py ──(Playwright/Chromium)──┐          │
+│  - Dashboard         │               │     │ reportar(etapa)                       ▼          │
+│  - Histórico         │               │     ▼                             Portal de Dados      │
+└──────────────────────┘               │  progresso.py (canal de progresso)  Abertos → Olinda   │
+                                       │  rpa/olinda_api.py  (plano B, HTTP direto)             │
+                                       │  services/tratamento.py   services/mensagem.py         │
+                                       │  services/serie.py ──► services/dashboard.py           │
                                        │  services/envios.py ──► whatsapp/providers.py ──► link wa.me / Meta / Twilio
-                                       │               │                                   │
-                                       │               ▼                                   │
-                                       │  SQLite (execucoes, mensagens)  +  logs/rpa.log   │
-                                       └───────────────────────────────────────────────────┘
+                                       │               │                                        │
+                                       │               ▼                                        │
+                                       │  SQLite (execucoes, mensagens, serie_metricas)         │
+                                       │  + logs/rpa.log                                        │
+                                       └────────────────────────────────────────────────────────┘
 ```
 
 **Separação de responsabilidades**
@@ -56,12 +63,14 @@ Nova consulta → Executar RPA → Visualizar dados → Gerar mensagem → Envia
 | Camada | Arquivo(s) | Responsabilidade |
 |---|---|---|
 | HTTP | `app/api.py`, `app/main.py` | Traduz HTTP ↔ serviços; mapeia erros de domínio para status HTTP |
-| Orquestração | `app/services/consultas.py` | Validação, trava de duplicidade, retentativas, plano B, persistência |
+| Orquestração | `app/services/consultas.py` | Validação, trava de duplicidade, retentativas, plano B, execução em segundo plano, persistência |
 | Automação | `app/rpa/bcb_portal.py` | Navegação no portal com Playwright |
+| Progresso | `app/progresso.py` | Canal que leva cada etapa do robô até a execução (e dali para a tela) |
 | Tratamento | `app/services/tratamento.py` | Validação, correção de unidades, normalização, estruturação |
 | Mensagem | `app/services/mensagem.py` | Gera o texto a partir dos dados estruturados |
 | Envio | `app/services/envios.py`, `app/whatsapp/providers.py` | Idempotência do envio; integração com o provedor |
-| Persistência | `app/models.py`, `app/database.py` | Modelos e sessão do banco |
+| Dashboard | `app/services/serie.py`, `app/services/dashboard.py` | Série histórica por trimestre e agregação para os gráficos |
+| Persistência | `app/models.py`, `app/database.py` | Modelos, sessão do banco e migração automática de colunas novas |
 | Configuração | `app/config.py` + `.env` | Tudo que é sensível ou muda por ambiente |
 
 ---
@@ -77,6 +86,7 @@ Nova consulta → Executar RPA → Visualizar dados → Gerar mensagem → Envia
 | **tenacity** | Retentativa com *backoff* exponencial só para erros transitórios. |
 | **httpx** | Cliente HTTP para o plano B e para as APIs de WhatsApp. |
 | **React + Vite + TypeScript** | Interface simples com tipos espelhando a API. O build é servido pelo próprio FastAPI, então a demonstração sobe com um comando só. |
+| **Recharts** | Gráficos declarativos em React, com tooltip e legenda prontos. É carregado **só quando a aba Dashboard é aberta** (*lazy loading*), para a tela inicial continuar leve. |
 | **WhatsApp: link oficial wa.me (padrão) + Cloud API da Meta** | O `wa.me` abre o WhatsApp de quem usa o sistema com a conversa e a mensagem prontas: não exige conta, token nem aprovação, respeita os termos de uso e quem confirma o envio é o próprio usuário. Para envio 100% automático, a integração com a Cloud API oficial da Meta já está pronta (`WHATSAPP_PROVIDER=meta`). A Twilio e o `mock` também estão disponíveis. Ver [justificativa](#justificativa-da-estratégia). |
 
 ---
@@ -131,7 +141,11 @@ npm run dev
 Acesse **http://localhost:5173**. O Vite redireciona as chamadas `/api` para o backend.
 
 > **Dica para a apresentação:** use `RPA_HEADLESS=false` no `.env` para o navegador abrir
-> na tela e todos verem o robô preenchendo o formulário do BCB.
+> na tela e todos verem o robô preenchendo o formulário do BCB — enquanto a interface mostra
+> cada etapa ao vivo.
+
+**Primeiro uso do dashboard:** abra a aba **Dashboard** e clique em **Carregar histórico**. O robô
+busca os últimos trimestres no portal (≈ 25 s para 12 trimestres) e os gráficos aparecem.
 
 ---
 
@@ -257,6 +271,46 @@ Os seletores ficam centralizados no topo do arquivo. Se o portal mudar, só esse
 
 ---
 
+## Progresso do robô em tempo real
+
+Uma consulta leva de 5 a 35 s (o portal do BCB às vezes demora mais de 10 s só para abrir). Em vez
+de um spinner parado, a tela mostra cada etapa do robô **enquanto ela acontece**:
+
+```
+⟳ Robô em execução                                                  12,4 s
+✓ Consulta registrada; aguardando o robô                            +0,0 s
+✓ Iniciando o robô (tentativa 1 de 3)                               +0,0 s
+✓ Abrindo o Portal de Dados Abertos do Banco Central                +2,3 s
+✓ Pesquisando “consórcios”                                          +8,0 s
+✓ Abrindo o conjunto “Dados Agregados do Segmento de Consórcios”    +9,2 s
+⟳ Abrindo o recurso “Métricas”                                     +10,6 s
+```
+
+**Como funciona**
+
+1. O frontend envia `POST /api/consultas` com `em_segundo_plano: true`. O backend valida, aplica as
+   travas de duplicidade, cria a execução `EM_EXECUCAO` e **responde na hora**.
+2. O robô roda em segundo plano (`BackgroundTasks` do FastAPI), numa sessão de banco própria.
+3. A cada passo, o robô chama `reportar("…")` (`app/progresso.py`). O orquestrador registra um
+   *ouvinte* que grava a etapa em `execucoes.etapas`, com horário.
+4. O frontend consulta `GET /api/consultas/{id}` a cada 0,8 s (*polling*) e desenha a linha do tempo
+   até o status mudar.
+
+**Decisões**
+
+- **Robô desacoplado da tela:** ele só "anuncia" as etapas; não sabe quem ouve. O canal usa
+  `ContextVar`, então duas consultas em paralelo não misturam as etapas. Sem ouvinte (testes,
+  carregamento de histórico), `reportar` não faz nada.
+- **Falha no registro do progresso nunca derruba o robô.**
+- **Retentativas e plano B também aparecem** ("Tentativa 1 falhou…", "consultando a API OData (plano B)").
+- **As etapas ficam salvas:** depois de concluída, a execução mostra "Etapas executadas pelo robô",
+  com o tempo de cada uma — o que serve também como rastreabilidade.
+- **Polling em vez de WebSocket:** mais simples, sem conexão aberta e fácil de depurar. Para
+  muitos usuários simultâneos, SSE/WebSocket seria o próximo passo (ver produção).
+- O modo síncrono continua disponível (`em_segundo_plano: false`, o padrão da API).
+
+---
+
 ## Tratamento e validação dos dados
 
 `app/services/tratamento.py` transforma ~125 linhas (uma por métrica) em informação estruturada:
@@ -277,6 +331,40 @@ Os seletores ficam centralizados no topo do arquivo. Se o portal mudar, só esse
 
 ---
 
+## Dashboard
+
+Aba **Dashboard**, com filtros de **segmento**, **UF em destaque** e **trimestre de referência**:
+
+| Elemento | O que mostra |
+|---|---|
+| **Cartões (KPIs)** | Cotas ativas, carteira, cotas vendidas, inadimplência e cotas da UF, com variação contra o trimestre anterior e um minigráfico dos últimos 8 trimestres |
+| **Linhas** | Evolução das cotas ativas e da carteira do segmento; inadimplência × pré-inadimplência |
+| **Rosca** | Composição do mercado por segmento, com o total no centro e o % de cada fatia |
+| **Barras empilhadas** | Contemplações por sorteio × lance em cada segmento |
+| **Barras horizontais** | Ranking das 27 UFs em cotas ativas, com a UF escolhida em destaque |
+
+**De onde vêm os dados:** a tabela `serie_metricas` guarda um valor por *(trimestre, métrica)*, já
+validado, com unidade corrigida e normalizado. Ela é alimentada de dois jeitos:
+
+- **toda consulta** feita em "Nova consulta" grava o trimestre consultado e o anterior;
+- o botão **Carregar histórico** manda o robô buscar vários trimestres (8 a 40) **numa única sessão
+  do navegador**, pulando os que já estão na base e guardando exatamente a quantidade pedida.
+  Só um carregamento roda por vez (trava contra duplicidade).
+
+**Decisões de visualização**
+
+- **Um eixo por gráfico** (nunca dois eixos Y), linhas finas e poucas cores.
+- **Paleta validada** para daltonismo e contraste, nos modos claro e escuro.
+- **A cor segue o segmento, não o ranking:** Imóveis tem sempre a mesma cor e a mesma posição na
+  rosca, mesmo quando troca de lugar com Motocicletas de um trimestre para outro.
+- A rosca tem **no máximo 5 fatias**: "Outros bens" e "Serviços", finas demais sozinhas, viram uma.
+- **Cores com significado:** em inadimplência, taxa de administração e índice de exclusão, **subir é
+  vermelho** e cair é verde (o contrário dos demais indicadores).
+- **Tabela de dados em todo gráfico** ("Ver dados em tabela"), para quem não distingue cores ou
+  prefere números.
+
+---
+
 ## Tratamento de erros
 
 | Situação | Como é tratada | Status registrado |
@@ -291,6 +379,7 @@ Os seletores ficam centralizados no topo do arquivo. Se o portal mudar, só esse
 | **Falha no envio do WhatsApp** | Erro do provedor é registrado com dica (ex.: janela de 24h); permite nova tentativa | `ERRO` na mensagem |
 | **Erro inesperado** | Capturado e registrado; a execução nunca fica presa em `EM_EXECUCAO` | `ERRO` |
 | **Aplicação derrubada no meio** | Na subida, execuções órfãs `EM_EXECUCAO` são marcadas como erro | `ERRO` |
+| **Banco criado por uma versão anterior** | Na subida, colunas novas (ex.: `etapas`) são criadas automaticamente com `ALTER TABLE` | — |
 
 ---
 
@@ -304,6 +393,8 @@ Os seletores ficam centralizados no topo do arquivo. Se o portal mudar, só esse
   A garantia está no banco, então não depende de *lock* em memória.
 - Dados de uma data-base passada não mudam: uma consulta idêntica já concluída é
   **reaproveitada** sem rodar o robô de novo. Para forçar, marque "Reprocessar".
+- Enquanto o robô roda, o botão fica travado ("Robô em execução…"), evitando clique duplo.
+- O **Carregar histórico** do dashboard só roda um por vez (HTTP 409 para o segundo).
 
 **Envio**
 
@@ -329,6 +420,7 @@ Tela **Histórico** (e `GET /api/historico`). Cada execução registra:
 | Mensagem gerada | `texto` |
 | Status do processamento e do envio | `execucoes.status`, `mensagens.status`, `fonte`, `tentativas`, `provedor_message_id` |
 | Descrição do erro | `execucoes.erro`, `mensagens.erro`, `avisos` |
+| Passo a passo do robô | `execucoes.etapas` (texto + horário de cada etapa) |
 
 **Logs:** `backend/logs/rpa.log` (rotativo, 5 MB × 5) + console. Os números de telefone
 aparecem **mascarados** nos logs.
@@ -342,12 +434,14 @@ Documentação interativa em `/docs`.
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/api/opcoes` | Segmentos, UFs e data-bases sugeridas |
-| POST | `/api/consultas` | Executa o RPA `{data_base, segmento, uf?, forcar?}` |
-| GET | `/api/consultas/{id}` | Uma execução |
+| POST | `/api/consultas` | Executa o RPA `{data_base, segmento, uf?, forcar?, em_segundo_plano?}`. Com `em_segundo_plano: true`, responde na hora com `EM_EXECUCAO` |
+| GET | `/api/consultas/{id}` | Uma execução, com as `etapas` (usado para acompanhar o progresso) |
 | GET | `/api/consultas/{id}/bruto` | Registros brutos da fonte |
 | POST | `/api/mensagens` | Gera mensagem `{execucao_id, destinatario_nome, destinatario_numero}` |
 | POST | `/api/mensagens/{id}/enviar` | Envia via WhatsApp (no modo `link`, devolve o link wa.me) |
 | GET | `/api/historico` | Execuções com suas mensagens |
+| GET | `/api/dashboard?segmento=&uf=&data_base=` | Dados agregados para os gráficos |
+| POST | `/api/dashboard/historico` | Robô busca vários trimestres `{trimestres: 4..40}` |
 
 ---
 
@@ -359,11 +453,13 @@ Dentro de `backend`:
 .venv\Scripts\python -m pytest -q
 ```
 
-São 40 testes que rodam **sem internet**, usando dados reais do BCB gravados em
+São 56 testes que rodam **sem internet**, usando dados reais do BCB gravados em
 `tests/fixtures/`. Eles cobrem: tratamento (correção de unidades, dados incompletos, UF ausente),
 formatação da mensagem, retentativa e plano B, consulta sem resultado, erro inesperado,
 travas de duplicidade (processamento e envio), validação de entrada, integração com a Meta
-(com `respx`) e o fluxo completo pela API.
+(com `respx`), o fluxo completo pela API, **série histórica e dashboard** (inclusive "carregar só
+o que falta") e **progresso em tempo real** (etapas gravadas, retentativas visíveis, modo em
+segundo plano e migração de banco antigo).
 
 ---
 
@@ -375,7 +471,9 @@ backend/
     main.py              # app FastAPI, logs, handlers de erro, serve o frontend
     api.py               # rotas
     config.py            # configurações (.env)
-    database.py models.py schemas.py exceptions.py
+    database.py          # sessão do banco + migração automática de colunas novas
+    models.py schemas.py exceptions.py
+    progresso.py         # canal de progresso do robô (etapas ao vivo)
     rpa/
       bcb_portal.py      # robô Playwright
       olinda_api.py      # plano B (HTTP direto)
@@ -384,6 +482,8 @@ backend/
       tratamento.py      # extração → dados estruturados
       mensagem.py        # geração do texto
       envios.py          # geração/envio com idempotência
+      serie.py           # grava a série histórica por trimestre
+      dashboard.py       # carregar histórico + dados dos gráficos
     whatsapp/
       providers.py       # Link wa.me, Meta, Twilio, Mock
       testar.py          # python -m app.whatsapp.testar <numero>
@@ -392,7 +492,8 @@ backend/
 frontend/
   src/
     App.tsx  api.ts  formato.ts  styles.css
-    components/ ConsultaForm, Resultado, MensagemPainel, Historico, StatusBadge
+    components/ ConsultaForm, ProgressoRobo, Resultado, MensagemPainel,
+                Dashboard, Graficos, Historico, StatusBadge
 ```
 
 ---
@@ -415,15 +516,25 @@ frontend/
 - **Console do Windows:** o terminal (cp1252) não exibia emojis e setas dos logs e gerava
   "Logging error". O console passou a substituir caracteres não suportados; o arquivo de log
   continua em UTF-8.
+- **Espera longa sem retorno:** o portal do BCB chega a levar mais de 10 s só para abrir, e um
+  spinner parado parecia travamento. A solução foi rodar o robô em segundo plano e mostrar cada
+  etapa ao vivo.
+- **Banco já existente ao adicionar colunas:** `create_all` não altera tabelas. Uma migração
+  simples na subida cria as colunas que faltam, sem perder dados.
+- **Cores dos gráficos legíveis para todos:** em vez de escolher cores "no olho", a paleta foi
+  validada por script (contraste com o fundo e separação para os tipos de daltonismo), nos modos
+  claro e escuro, antes de ser usada.
 
 ---
 
 ## O que mudaria para produção
 
-- **Fila de jobs** (Celery/RQ + Redis ou SQS): o RPA rodaria em *workers* separados da API, com
-  o front acompanhando o status (polling/WebSocket), em vez de uma requisição síncrona de ~5–30 s.
+- **Fila de jobs** (Celery/RQ + Redis ou SQS) no lugar do `BackgroundTasks`: o robô rodaria em
+  *workers* separados da API, sobreviveria a reinícios e escalaria horizontalmente.
+- **SSE ou WebSocket** no lugar do polling, empurrando cada etapa para a tela assim que acontece.
 - **Agendamento:** execução automática quando o BCB publica um novo trimestre.
-- **PostgreSQL + Alembic** (migrações versionadas) no lugar de SQLite + `create_all`.
+- **PostgreSQL + Alembic** (migrações versionadas) no lugar de SQLite + `create_all` e da
+  migração manual de colunas.
 - **WhatsApp com templates aprovados** pela Meta (necessário para iniciar conversas fora da
   janela de 24h), token de *System User* e **webhook de status** (entregue/lida/falhou).
 - **Segredos** em cofre (Azure Key Vault, AWS Secrets Manager), não em `.env`.
