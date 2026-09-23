@@ -1,5 +1,15 @@
 """Orquestra uma execução do RPA: validação → trava de duplicidade →
-coleta (com retentativas e plano B) → tratamento → persistência."""
+coleta (com retentativas e plano B) → tratamento → persistência.
+
+A execução tem duas fases:
+- `iniciar_consulta`: valida, aplica as regras de duplicidade e cria o registro
+  EM_EXECUCAO (rápido — a API responde na hora);
+- `processar_execucao`: roda o robô e trata os dados, gravando cada etapa em
+  `execucao.etapas` para o frontend acompanhar o progresso.
+
+`executar_consulta` faz as duas em sequência (modo síncrono) e
+`processar_em_segundo_plano` roda a segunda numa sessão própria, fora da requisição.
+"""
 from __future__ import annotations
 
 import logging
@@ -14,10 +24,13 @@ from sqlalchemy.orm import Session
 from tenacity import Retrying, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from app.config import Settings
+from app.database import SessionLocal
 from app.exceptions import AppError, EntradaInvalida, FalhaNavegacao, FonteIndisponivel, NaoEncontrado, ProcessamentoDuplicado
 from app.models import Execucao, StatusExecucao
+from app.progresso import ouvir, reportar
 from app.rpa.bcb_portal import PortalBCB
 from app.rpa.olinda_api import OlindaAPI
+from app.services.serie import salvar_serie
 from app.services.tratamento import SEGMENTOS, UFS, estruturar, referencia, trimestre_anterior
 
 log = logging.getLogger(__name__)
@@ -54,14 +67,8 @@ def validar_parametros(data_base: str, segmento: str, uf: str | None) -> tuple[s
     return data_base, segmento, uf
 
 
-def executar_consulta(
-    db: Session,
-    s: Settings,
-    coletores: Coletores,
-    data_base: str,
-    segmento: str,
-    uf: str | None = None,
-    forcar: bool = False,
+def iniciar_consulta(
+    db: Session, data_base: str, segmento: str, uf: str | None = None, forcar: bool = False
 ) -> tuple[Execucao, bool]:
     """Retorna (execução, reaproveitada). Dados do BCB de uma data-base passada
     não mudam, então uma consulta idêntica já concluída é reaproveitada em vez
@@ -80,64 +87,126 @@ def executar_consulta(
             return anterior, True
 
     execucao = Execucao(chave=chave, data_base=data_base, segmento=segmento, uf=uf, status=StatusExecucao.EM_EXECUCAO)
+    execucao.etapas = [_etapa("Consulta registrada; aguardando o robô")]
     db.add(execucao)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
         raise ProcessamentoDuplicado(f"Já existe uma execução em andamento para esta consulta ({chave}).")
-
     log.info("Execução #%s iniciada: %s", execucao.id, chave)
-    try:
-        data_bases = [data_base, trimestre_anterior(data_base)]
-        resultados, fonte = _coletar(execucao, s, coletores, data_bases)
-        execucao.fonte = fonte
-        registros = resultados.get(data_base) or []
-        execucao.registros_brutos = registros
+    return execucao, False
 
-        if not registros:
-            execucao.status = StatusExecucao.SEM_RESULTADO
-            execucao.erro = (
-                f"Nenhum dado publicado para {referencia(data_base)}. "
-                "O BCB publica o panorama trimestralmente (mar, jun, set, dez), com defasagem de alguns meses."
-            )
-        else:
-            dados, avisos = estruturar(data_base, segmento, uf, registros, resultados.get(data_bases[1]))
-            execucao.dados, execucao.avisos = dados, avisos
-            execucao.status = StatusExecucao.SUCESSO
+
+def processar_execucao(db: Session, s: Settings, coletores: Coletores, execucao: Execucao) -> Execucao:
+    def registrar(texto: str) -> None:
+        # Nova lista (e não .append) para o SQLAlchemy perceber a mudança no JSON.
+        execucao.etapas = [*(execucao.etapas or []), _etapa(texto)]
+        db.commit()
+
+    try:
+        with ouvir(registrar):
+            data_bases = [execucao.data_base, trimestre_anterior(execucao.data_base)]
+            resultados, fonte = _coletar(execucao, s, coletores, data_bases)
+            execucao.fonte = fonte
+            registros = resultados.get(execucao.data_base) or []
+            execucao.registros_brutos = registros
+
+            if not registros:
+                execucao.status = StatusExecucao.SEM_RESULTADO
+                execucao.erro = (
+                    f"Nenhum dado publicado para {referencia(execucao.data_base)}. "
+                    "O BCB publica o panorama trimestralmente (mar, jun, set, dez), com defasagem de alguns meses."
+                )
+                reportar("Consulta concluída sem resultado")
+            else:
+                reportar("Validando, corrigindo unidades e estruturando os dados")
+                dados, avisos = estruturar(execucao.data_base, execucao.segmento, execucao.uf, registros, resultados.get(data_bases[1]))
+                execucao.dados, execucao.avisos = dados, avisos
+                execucao.status = StatusExecucao.SUCESSO
+                _alimentar_serie(db, resultados)
+                reportar("Concluído")
     except AppError as e:
         execucao.status, execucao.erro = StatusExecucao.ERRO, e.mensagem
+        execucao.etapas = [*(execucao.etapas or []), _etapa(f"Falhou: {e.mensagem}")]
         log.error("Execução #%s falhou: %s", execucao.id, e.mensagem)
     except Exception as e:  # noqa: BLE001 — nenhuma execução pode ficar presa em EM_EXECUCAO
+        db.rollback()
         execucao.status, execucao.erro = StatusExecucao.ERRO, f"Erro inesperado: {type(e).__name__}: {e}"
+        execucao.etapas = [*(execucao.etapas or []), _etapa("Falhou: erro inesperado (detalhes no log)")]
         log.exception("Execução #%s falhou com erro inesperado", execucao.id)
     finally:
         execucao.finalizado_em = datetime.now(UTC)
         db.commit()
 
     log.info("Execução #%s finalizada: %s (fonte=%s, tentativas=%s)", execucao.id, execucao.status, execucao.fonte, execucao.tentativas)
-    return execucao, False
+    return execucao
+
+
+def executar_consulta(
+    db: Session,
+    s: Settings,
+    coletores: Coletores,
+    data_base: str,
+    segmento: str,
+    uf: str | None = None,
+    forcar: bool = False,
+) -> tuple[Execucao, bool]:
+    """Modo síncrono: inicia e processa na mesma chamada."""
+    execucao, reaproveitada = iniciar_consulta(db, data_base, segmento, uf, forcar)
+    if reaproveitada:
+        return execucao, True
+    return processar_execucao(db, s, coletores, execucao), False
+
+
+def processar_em_segundo_plano(execucao_id: int, s: Settings, coletores: Coletores) -> None:
+    """Roda fora da requisição HTTP, com sessão de banco própria."""
+    with SessionLocal() as db:
+        execucao = db.get(Execucao, execucao_id)
+        if execucao is None or execucao.status != StatusExecucao.EM_EXECUCAO:
+            return
+        processar_execucao(db, s, coletores, execucao)
+
+
+def _etapa(texto: str) -> dict:
+    return {"texto": texto, "em": datetime.now(UTC).isoformat()}
+
+
+def _alimentar_serie(db: Session, resultados: dict[str, list[dict]]) -> None:
+    """Aproveita os trimestres já coletados para o histórico do dashboard.
+    Falhar aqui não pode derrubar a consulta, que já foi concluída."""
+    try:
+        for data_base, registros in resultados.items():
+            if registros:
+                salvar_serie(db, data_base, registros)
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        log.exception("Não foi possível atualizar a série histórica")
 
 
 def _coletar(execucao: Execucao, s: Settings, coletores: Coletores, data_bases: list[str]) -> tuple[dict, str]:
+    def antes_de_esperar(rs) -> None:
+        log.warning("Tentativa %s falhou (%s) — tentando novamente.", rs.attempt_number, rs.outcome.exception())
+        reportar(f"Tentativa {rs.attempt_number} falhou ({rs.outcome.exception()}); tentando de novo em instantes")
+
     retentar = Retrying(
         stop=stop_after_attempt(s.rpa_max_tentativas),
         wait=wait_exponential(multiplier=2, min=2, max=15),
         retry=retry_if_exception_type((FonteIndisponivel, FalhaNavegacao)),
         reraise=True,
-        before_sleep=lambda rs: log.warning(
-            "Tentativa %s falhou (%s) — tentando novamente.", rs.attempt_number, rs.outcome.exception()
-        ),
+        before_sleep=antes_de_esperar,
     )
     try:
         for tentativa in retentar:
             with tentativa:
                 execucao.tentativas = tentativa.retry_state.attempt_number
+                reportar(f"Iniciando o robô (tentativa {execucao.tentativas} de {s.rpa_max_tentativas})")
                 return coletores.portal(data_bases), "portal"
     except (FonteIndisponivel, FalhaNavegacao) as erro_portal:
         if not coletores.api:
             raise
         log.warning("Portal falhou após %s tentativas (%s). Usando API OData como plano B.", execucao.tentativas, erro_portal)
+        reportar("Portal indisponível após as tentativas — consultando a API OData do BCB (plano B)")
         return coletores.api(data_bases), "api_fallback"
     raise AssertionError("inalcançável")
 

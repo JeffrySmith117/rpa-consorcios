@@ -4,7 +4,7 @@ texto, status do envio)."""
 from datetime import UTC, datetime
 from enum import StrEnum
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Index, Integer, String, Text, text
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -45,6 +45,7 @@ class Execucao(Base):
     dados: Mapped[dict | None] = mapped_column(JSON)  # informações tratadas
     registros_brutos: Mapped[list | None] = mapped_column(JSON)  # como vieram da fonte
     avisos: Mapped[list | None] = mapped_column(JSON)  # dados incompletos, etc.
+    etapas: Mapped[list | None] = mapped_column(JSON)  # [{"texto", "em"}] — progresso do robô, passo a passo
     erro: Mapped[str | None] = mapped_column(Text)
 
     iniciado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=agora)
@@ -98,3 +99,21 @@ class Mensagem(Base):
             postgresql_where=text("status IN ('ENVIANDO', 'ENVIADA')"),
         ),
     )
+
+
+class MetricaSerie(Base):
+    """Série histórica usada pelo dashboard: um valor por (trimestre, métrica),
+    já validado, com unidade corrigida e normalizado para valor absoluto.
+    É alimentada a cada consulta do RPA e pelo botão "Carregar histórico"."""
+
+    __tablename__ = "serie_metricas"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    data_base: Mapped[str] = mapped_column(String(6), index=True)
+    id_metrica: Mapped[str] = mapped_column(String(8))
+    nome: Mapped[str] = mapped_column(String(200))
+    valor: Mapped[float] = mapped_column(Float)
+    unidade: Mapped[str] = mapped_column(String(8))  # "un" | "R$" | "%" | "meses"
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=agora)
+
+    __table_args__ = (UniqueConstraint("data_base", "id_metrica", name="uq_serie_trimestre_metrica"),)

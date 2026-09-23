@@ -4,15 +4,15 @@ Rotas síncronas (def) de propósito: o FastAPI as executa em thread pool,
 então o navegador do Playwright (API síncrona) não bloqueia o event loop."""
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.config import Settings, get_settings
 from app.database import get_db
 from app.models import Execucao, Mensagem
-from app.schemas import ConsultaIn, ExecucaoResultado, HistoricoItem, MensagemIn, MensagemOut, Opcoes
-from app.services import consultas, envios
+from app.schemas import ConsultaIn, ExecucaoResultado, HistoricoItem, HistoricoMetricasIn, MensagemIn, MensagemOut, Opcoes
+from app.services import consultas, dashboard, envios
 from app.services.tratamento import SEGMENTOS, UFS
 from app.whatsapp.providers import criar_provedor
 
@@ -39,11 +39,19 @@ def opcoes(s: Settings = Depends(get_settings)):
 @router.post("/consultas", response_model=ExecucaoResultado)
 def executar_consulta(
     body: ConsultaIn,
+    tarefas: BackgroundTasks,
     db: Session = Depends(get_db),
     s: Settings = Depends(get_settings),
     coletores: consultas.Coletores = Depends(get_coletores),
 ):
-    execucao, reaproveitada = consultas.executar_consulta(db, s, coletores, body.data_base, body.segmento, body.uf, body.forcar)
+    if body.em_segundo_plano:
+        # Responde já com a execução EM_EXECUCAO; o robô roda depois da resposta
+        # e grava cada etapa, que o frontend acompanha por GET /api/consultas/{id}.
+        execucao, reaproveitada = consultas.iniciar_consulta(db, body.data_base, body.segmento, body.uf, body.forcar)
+        if not reaproveitada:
+            tarefas.add_task(consultas.processar_em_segundo_plano, execucao.id, s, coletores)
+    else:
+        execucao, reaproveitada = consultas.executar_consulta(db, s, coletores, body.data_base, body.segmento, body.uf, body.forcar)
     return ExecucaoResultado.model_validate(execucao).model_copy(update={"reaproveitada": reaproveitada})
 
 
@@ -83,3 +91,24 @@ def historico(
 @router.get("/mensagens", response_model=list[MensagemOut])
 def listar_mensagens(limite: int = Query(default=50, le=200), db: Session = Depends(get_db)):
     return db.scalars(select(Mensagem).order_by(Mensagem.id.desc()).limit(limite)).all()
+
+
+@router.get("/dashboard")
+def obter_dashboard(
+    segmento: str = Query(default="TOTAL"),
+    uf: str | None = Query(default=None),
+    data_base: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    return dashboard.montar_dashboard(db, segmento, uf, data_base)
+
+
+@router.post("/dashboard/historico")
+def carregar_historico(
+    body: HistoricoMetricasIn,
+    db: Session = Depends(get_db),
+    s: Settings = Depends(get_settings),
+    coletores: consultas.Coletores = Depends(get_coletores),
+):
+    """Executa o robô para vários trimestres de uma vez e grava a série histórica."""
+    return dashboard.carregar_historico(db, s, coletores, body.trimestres)

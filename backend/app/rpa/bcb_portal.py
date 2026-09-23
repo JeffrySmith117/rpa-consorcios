@@ -31,6 +31,8 @@ from playwright.sync_api import Page, sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 
 from app.exceptions import FalhaNavegacao, FonteIndisponivel, RespostaInvalida
+from app.progresso import reportar
+from app.services.tratamento import referencia
 
 log = logging.getLogger(__name__)
 
@@ -106,6 +108,7 @@ class PortalBCB:
             except (PlaywrightTimeout, FalhaNavegacao) as e:
                 msg = e.message if isinstance(e, PlaywrightTimeout) else str(e)
                 log.warning("Navegação pelo catálogo falhou (%s). Seguindo pelo link direto do formulário.", msg.splitlines()[0])
+                reportar("Catálogo não respondeu como esperado — seguindo pelo link direto do formulário")
                 self._screenshot(page, "catalogo")
                 self._abrir_link_direto(page)
         else:
@@ -113,37 +116,44 @@ class PortalBCB:
         try:
             # O formulário é montado pelo Angular depois do carregamento inicial.
             page.wait_for_selector(SEL_DATA_BASE, state="visible")
+            reportar("Formulário de consulta carregado")
         except PlaywrightTimeout as e:
             raise FalhaNavegacao("Formulário de consulta não apareceu (campo 'Data Base' ausente).") from e
 
     def _navegar_pelo_catalogo(self, page: Page) -> None:
         log.info("Abrindo Portal de Dados Abertos: %s", self.url_catalogo)
+        reportar("Abrindo o Portal de Dados Abertos do Banco Central")
         self._goto(page, self.url_catalogo)
 
         log.info("Pesquisando '%s'", TERMO_BUSCA)
+        reportar(f"Pesquisando “{TERMO_BUSCA}”")
         page.fill(SEL_BUSCA, TERMO_BUSCA)
         with page.expect_navigation(wait_until="domcontentloaded"):
             page.press(SEL_BUSCA, "Enter")
 
         log.info("Abrindo conjunto de dados 'Dados Agregados do Segmento de Consórcios'")
+        reportar("Abrindo o conjunto “Dados Agregados do Segmento de Consórcios”")
         if page.locator(SEL_CONJUNTO).count() == 0:
             raise FalhaNavegacao("Conjunto de dados de consórcios não encontrado no resultado da busca.")
         with page.expect_navigation(wait_until="domcontentloaded"):
             page.locator(SEL_CONJUNTO).first.click()
 
         log.info("Abrindo recurso 'Métricas'")
+        reportar("Abrindo o recurso “Métricas”")
         with page.expect_navigation(wait_until="domcontentloaded"):
             page.locator(SEL_RECURSO_METRICAS).first.click()
 
         destino = page.locator(SEL_IR_PARA_RECURSO).first.get_attribute("href") or ""
         if "recursos/Metricas" not in destino:
             raise FalhaNavegacao(f"Link 'Ir para recurso' aponta para um destino inesperado: {destino!r}")
-        log.info("Clicando em 'Ir para recurso' → %s", destino)
+        log.info("Clicando em 'Ir para recurso' -> %s", destino)
+        reportar("Clicando em “Ir para recurso” (portal Olinda)")
         with page.expect_navigation(wait_until="domcontentloaded"):
             page.locator(SEL_IR_PARA_RECURSO).first.click()
 
     def _abrir_link_direto(self, page: Page) -> None:
         log.info("Abrindo formulário de consulta: %s", self.url)
+        reportar("Abrindo o formulário de consulta pelo link direto")
         self._goto(page, self.url)
 
     @staticmethod
@@ -154,6 +164,7 @@ class PortalBCB:
 
     def _executar_consulta(self, page: Page, data_base: str) -> list[dict]:
         log.info("Consultando data-base %s", data_base)
+        reportar(f"Consultando {referencia(data_base)}: preenchendo o formulário e clicando em “Executar”")
         page.fill(SEL_DATA_BASE, data_base)
         page.fill(SEL_MAXIMO, str(MAXIMO_REGISTROS))
         page.select_option(SEL_FORMATO, "json")
@@ -179,6 +190,11 @@ class PortalBCB:
 
         registros = self._ler_registros(resposta.text())
         self._validar_grade(page, esperado=len(registros))
+        reportar(
+            f"{referencia(data_base)}: {len(registros)} métricas recebidas e grade validada"
+            if registros
+            else f"{referencia(data_base)}: nenhum dado publicado"
+        )
         return registros
 
     def _ler_registros(self, corpo: str) -> list[dict]:

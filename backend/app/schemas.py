@@ -8,6 +8,10 @@ class ConsultaIn(BaseModel):
     segmento: str = Field(default="TOTAL", examples=["IMOVEIS"])
     uf: str | None = Field(default=None, examples=["SP"])
     forcar: bool = Field(default=False, description="Reprocessa mesmo se a consulta já foi feita")
+    em_segundo_plano: bool = Field(
+        default=False,
+        description="Responde na hora (status EM_EXECUCAO) e roda o robô em segundo plano; acompanhe por GET /api/consultas/{id}",
+    )
 
 
 class MensagemIn(BaseModel):
@@ -44,6 +48,7 @@ class ExecucaoOut(BaseModel):
     tentativas: int
     dados: dict | None
     avisos: list[str] | None
+    etapas: list[dict] | None = None
     erro: str | None
     iniciado_em: datetime
     finalizado_em: datetime | None
@@ -62,3 +67,7 @@ class Opcoes(BaseModel):
     ufs: list[str]
     data_bases_sugeridas: list[str]
     whatsapp_provider: str
+
+
+class HistoricoMetricasIn(BaseModel):
+    trimestres: int = Field(default=12, ge=4, le=40, description="Quantos trimestres buscar (o BCB publica desde dez/2015)")

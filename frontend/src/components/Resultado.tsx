@@ -1,5 +1,6 @@
 import type { Execucao, Indicador } from "../api";
 import { duracao, formatarValor, formatarVariacao } from "../formato";
+import { ProgressoRobo } from "./ProgressoRobo";
 import { StatusBadge } from "./StatusBadge";
 
 // Indicadores em que queda é boa notícia (cor da variação invertida).
@@ -69,6 +70,13 @@ export function Resultado({ execucao }: { execucao: Execucao }) {
             </div>
           </div>
         </>
+      )}
+
+      {!!execucao.etapas?.length && (
+        <details className="avisos">
+          <summary>Etapas executadas pelo robô ({execucao.etapas.length})</summary>
+          <ProgressoRobo etapas={execucao.etapas} emAndamento={false} />
+        </details>
       )}
 
       {!!execucao.avisos?.length && (

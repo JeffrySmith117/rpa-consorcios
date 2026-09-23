@@ -16,6 +16,16 @@
   --info-bg: #dbeafe;
   --wpp-fundo: #e5ddd5;
   --wpp-bolha: #dcf8c6;
+  /* gráficos (paleta validada para daltonismo e contraste) */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --barra-neutra: #c5ccd8;
+  --grade: #eceff4;
+  --cat-1: #2a78d6;
+  --cat-2: #eb6834;
+  --cat-3: #1baf7a;
+  --cat-4: #eda100;
+  --cat-5: #e87ba4;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--texto);
   background: var(--bg);
@@ -40,6 +50,15 @@
     --info-bg: #172a47;
     --wpp-fundo: #0b141a;
     --wpp-bolha: #005c4b;
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --barra-neutra: #3b4756;
+    --grade: #232c37;
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
   }
 }
 
@@ -142,3 +161,65 @@ a { color: var(--primaria); }
   background: #25d366; color: #0b141a; text-decoration: none; margin-bottom: 8px;
 }
 .botao-link:hover { background: #1ebe5b; }
+
+/* --- dashboard --- */
+.filtros { display: grid; grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(260px, 1.4fr); gap: 12px; align-items: end; margin-top: 8px; }
+.filtros-historico { display: flex; gap: 8px; align-items: flex-end; }
+.filtros-historico label { flex: 1; }
+@media (max-width: 900px) { .filtros { grid-template-columns: 1fr 1fr; } .filtros-historico { grid-column: 1 / -1; } }
+.aviso-ok { background: var(--ok-bg); color: var(--ok); }
+.vazio h3 { margin-bottom: 6px; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kpi { margin: 0; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.kpi-valor { font-size: 1.6rem; line-height: 1.2; }
+.minigrafico-vazio { font-size: 0.75rem; color: var(--suave); height: 36px; display: flex; align-items: center; }
+
+.graficos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.graficos .card { margin: 0; }
+.grafico-largo { grid-column: 1 / -1; }
+@media (max-width: 900px) { .graficos { grid-template-columns: 1fr; } }
+.grafico-titulo { margin: 0 0 2px; font-size: 1rem; }
+.grafico .meta { margin: 0 0 10px; }
+.grafico-tabela { margin-top: 8px; font-size: 0.85rem; }
+.grafico-tabela summary { cursor: pointer; color: var(--suave); }
+.grafico-tabela table { margin-top: 6px; }
+
+.tooltip-grafico {
+  background: var(--card); border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12); font-size: 0.82rem; color: var(--texto); min-width: 160px;
+}
+.tooltip-linha { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.tooltip-linha b { margin-left: auto; padding-left: 12px; }
+.tooltip-marca { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.recharts-legend-item-text { color: var(--texto) !important; }
+
+.rosca { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 1.1fr); gap: 16px; align-items: center; }
+@media (max-width: 520px) { .rosca { grid-template-columns: 1fr; } }
+.rosca-grafico { position: relative; }
+.rosca-centro {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none; text-align: center;
+}
+.rosca-centro strong { font-size: 1.35rem; }
+.rosca-centro span { font-size: 0.78rem; color: var(--suave); }
+.rosca-legenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; }
+.rosca-legenda li { display: grid; grid-template-columns: 12px auto auto; justify-content: start; column-gap: 8px; align-items: center; }
+.rosca-legenda .tooltip-marca { width: 12px; height: 12px; }
+.rosca-legenda .rosca-valor { grid-column: 2 / -1; color: var(--suave); font-size: 0.78rem; }
+.rosca-legenda li.destaque .rosca-nome { font-weight: 700; }
+
+/* --- progresso do robô --- */
+.progresso-robo { margin-top: 14px; border: 1px solid var(--borda); border-radius: 8px; padding: 12px 14px; background: var(--bg); }
+.progresso-cabecalho { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.progresso-cabecalho .meta { margin-left: auto; font-variant-numeric: tabular-nums; }
+.etapas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+.etapas li { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: center; }
+.etapa-icone { display: flex; justify-content: center; font-weight: 700; }
+.etapas li.feita .etapa-icone { color: var(--ok); }
+.etapas li.falhou .etapa-icone { color: var(--alerta); }
+.etapas li.rodando .etapa-texto { font-weight: 600; }
+.etapas li.falhou .etapa-texto { color: var(--alerta); }
+.etapa-tempo { color: var(--suave); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.etapas .spinner { width: 14px; height: 14px; }
+.avisos .progresso-robo { margin-top: 8px; }

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { Opcoes } from "../api";
+import type { Etapa, Opcoes } from "../api";
 import { referencia } from "../formato";
+import { ProgressoRobo } from "./ProgressoRobo";
 
 export interface ParametrosConsulta {
   data_base: string;
@@ -12,10 +13,11 @@ export interface ParametrosConsulta {
 interface Props {
   opcoes: Opcoes;
   executando: boolean;
+  etapas: Etapa[] | null; // progresso ao vivo do robô enquanto executa
   onExecutar: (p: ParametrosConsulta) => void;
 }
 
-export function ConsultaForm({ opcoes, executando, onExecutar }: Props) {
+export function ConsultaForm({ opcoes, executando, etapas, onExecutar }: Props) {
   const [dataBase, setDataBase] = useState(opcoes.data_bases_sugeridas[1] ?? "");
   const [segmento, setSegmento] = useState("TOTAL");
   const [uf, setUf] = useState("");
@@ -74,11 +76,7 @@ export function ConsultaForm({ opcoes, executando, onExecutar }: Props) {
           {executando ? "Robô em execução…" : "Executar RPA"}
         </button>
       </div>
-      {executando && (
-        <div className="progresso">
-          <span className="spinner" /> Abrindo o portal do BCB, preenchendo o formulário e aguardando os resultados… (≈ 15–30 s)
-        </div>
-      )}
+      {executando && etapas && <ProgressoRobo etapas={etapas} emAndamento />}
     </form>
   );
 }
