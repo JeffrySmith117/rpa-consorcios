@@ -1,14 +1,8 @@
 import { useState } from "react";
-import type { Etapa, Opcoes } from "../api";
-import { referencia } from "../formato";
+import type { Etapa, Opcoes } from "../../api";
+import { referencia } from "../../lib/formato";
+import type { ParametrosConsulta } from "./hooks";
 import { ProgressoRobo } from "./ProgressoRobo";
-
-export interface ParametrosConsulta {
-  data_base: string;
-  segmento: string;
-  uf: string | null;
-  forcar: boolean;
-}
 
 interface Props {
   opcoes: Opcoes;

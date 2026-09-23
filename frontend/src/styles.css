@@ -76,8 +76,11 @@ header { background: var(--primaria); color: #fff; padding: 14px 0; margin-botto
 .topo h1 { font-size: 1.3rem; }
 .topo span { opacity: 0.85; font-size: 0.85rem; }
 nav { display: flex; gap: 6px; }
-nav button { background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); color: #fff; }
-nav button.ativa, nav button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
+nav a {
+  font-weight: 600; padding: 9px 16px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff; text-decoration: none;
+}
+nav a.ativa, nav a:hover { background: rgba(255, 255, 255, 0.18); }
 
 .card { background: var(--card); border: 1px solid var(--borda); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
 .titulo-linha { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 0.5rem; }

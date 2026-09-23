@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
-import { api, ApiError, type Dashboard as DadosDashboard, type Opcoes } from "../api";
-import { formatarValor, formatarVariacao, referencia } from "../formato";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Carregando } from "../../components/Carregando";
+import { formatarValor, formatarVariacao, mensagemDeErro, referencia } from "../../lib/formato";
+import { useOpcoes } from "../consulta/hooks";
 import { CartaoGrafico, CORES_CATEGORIAS, GraficoBarras, GraficoEmpilhado, GraficoLinhas, GraficoRosca, Minigrafico } from "./Graficos";
+import { useCarregarHistorico, useDashboard } from "./hooks";
 
 // Mesma regra da tela de resultado: nesses indicadores, cair é bom.
 const MENOR_EH_MELHOR = new Set(["inadimplencia"]);
@@ -17,45 +20,39 @@ const FATIAS = [
   { chave: "OUTROS", segmentos: ["OUTROS", "SERVICOS"], nome: "Outros bens e serviços" },
 ];
 
-export function Dashboard({ opcoes }: { opcoes: Opcoes }) {
-  const [segmento, setSegmento] = useState("TOTAL");
-  const [uf, setUf] = useState("");
-  const [dataBase, setDataBase] = useState("");
-  const [dados, setDados] = useState<DadosDashboard | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+export function PaginaDashboard() {
+  // Filtros ficam na URL (/dashboard?segmento=IMOVEIS&uf=SP): dá para compartilhar o link
+  // e o "voltar" do navegador desfaz a última troca de filtro.
+  const [url, setUrl] = useSearchParams();
+  const segmento = url.get("segmento") ?? "TOTAL";
+  const uf = url.get("uf") ?? "";
+  const dataBase = url.get("data_base") ?? "";
+  const filtrar = (campo: string, valor: string) =>
+    setUrl((atual) => {
+      const proximo = new URLSearchParams(atual);
+      if (valor && !(campo === "segmento" && valor === "TOTAL")) proximo.set(campo, valor);
+      else proximo.delete(campo);
+      return proximo;
+    });
+
+  const opcoes = useOpcoes();
+  const dashboard = useDashboard({ segmento, uf: uf || null, data_base: dataBase || null });
+  const carregar = useCarregarHistorico();
   const [trimestres, setTrimestres] = useState(12);
-  const [carregandoHistorico, setCarregandoHistorico] = useState(false);
-  const [avisoHistorico, setAvisoHistorico] = useState<string | null>(null);
 
-  function buscar() {
-    setErro(null);
-    api
-      .dashboard({ segmento, uf: uf || null, data_base: dataBase || null })
-      .then(setDados)
-      .catch((e) => setErro(e instanceof ApiError ? e.message : String(e)));
-  }
-  useEffect(buscar, [segmento, uf, dataBase]);
+  const dados = dashboard.data;
+  const erro = dashboard.error ?? carregar.error;
+  const r = carregar.data;
+  const avisoHistorico = r
+    ? `${r.carregados.length} trimestre(s) novo(s) carregado(s)` +
+      (r.ja_existentes.length ? `, ${r.ja_existentes.length} já estavam na base` : "") +
+      (r.sem_dados.length ? `, ${r.sem_dados.length} ainda sem publicação no BCB` : "") +
+      (r.fonte ? ` · fonte: ${r.fonte === "api_fallback" ? "API OData (plano B)" : r.fonte}` : "") +
+      "."
+    : null;
 
-  async function carregarHistorico() {
-    setCarregandoHistorico(true);
-    setErro(null);
-    setAvisoHistorico(null);
-    try {
-      const r = await api.carregarHistorico(trimestres);
-      setAvisoHistorico(
-        `${r.carregados.length} trimestre(s) novo(s) carregado(s)` +
-          (r.ja_existentes.length ? `, ${r.ja_existentes.length} já estavam na base` : "") +
-          (r.sem_dados.length ? `, ${r.sem_dados.length} ainda sem publicação no BCB` : "") +
-          (r.fonte ? ` · fonte: ${r.fonte === "api_fallback" ? "API OData (plano B)" : r.fonte}` : "") +
-          ".",
-      );
-      buscar();
-    } catch (e) {
-      setErro(e instanceof ApiError ? e.message : String(e));
-    } finally {
-      setCarregandoHistorico(false);
-    }
-  }
+  if (opcoes.isPending) return <Carregando texto="Carregando opções…" />;
+  if (opcoes.isError) return <div className="aviso aviso-erro">{mensagemDeErro(opcoes.error)}</div>;
 
   const vazio = dados && dados.trimestres_disponiveis.length === 0;
   const serie = dados?.serie ?? [];
@@ -75,8 +72,8 @@ export function Dashboard({ opcoes }: { opcoes: Opcoes }) {
         <div className="filtros">
           <label>
             Segmento
-            <select value={segmento} onChange={(e) => setSegmento(e.target.value)}>
-              {Object.entries(opcoes.segmentos).map(([k, v]) => (
+            <select value={segmento} onChange={(e) => filtrar("segmento", e.target.value)}>
+              {Object.entries(opcoes.data.segmentos).map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
@@ -85,16 +82,16 @@ export function Dashboard({ opcoes }: { opcoes: Opcoes }) {
           </label>
           <label>
             UF em destaque
-            <select value={uf} onChange={(e) => setUf(e.target.value)}>
+            <select value={uf} onChange={(e) => filtrar("uf", e.target.value)}>
               <option value="">—</option>
-              {opcoes.ufs.map((u) => (
+              {opcoes.data.ufs.map((u) => (
                 <option key={u}>{u}</option>
               ))}
             </select>
           </label>
           <label>
             Trimestre de referência
-            <select value={dataBase} onChange={(e) => setDataBase(e.target.value)} disabled={!dados?.trimestres_disponiveis.length}>
+            <select value={dataBase} onChange={(e) => filtrar("data_base", e.target.value)} disabled={!dados?.trimestres_disponiveis.length}>
               <option value="">Mais recente</option>
               {[...(dados?.trimestres_disponiveis ?? [])].reverse().map((d) => (
                 <option key={d} value={d}>
@@ -106,7 +103,7 @@ export function Dashboard({ opcoes }: { opcoes: Opcoes }) {
           <div className="filtros-historico">
             <label>
               Histórico
-              <select value={trimestres} onChange={(e) => setTrimestres(Number(e.target.value))} disabled={carregandoHistorico}>
+              <select value={trimestres} onChange={(e) => setTrimestres(Number(e.target.value))} disabled={carregar.isPending}>
                 {OPCOES_TRIMESTRES.map((n) => (
                   <option key={n} value={n}>
                     últimos {n} trimestres
@@ -114,18 +111,19 @@ export function Dashboard({ opcoes }: { opcoes: Opcoes }) {
                 ))}
               </select>
             </label>
-            <button onClick={carregarHistorico} disabled={carregandoHistorico}>
-              {carregandoHistorico ? "Robô buscando…" : "Carregar histórico"}
+            <button onClick={() => carregar.mutate(trimestres)} disabled={carregar.isPending}>
+              {carregar.isPending ? "Robô buscando…" : "Carregar histórico"}
             </button>
           </div>
         </div>
-        {carregandoHistorico && (
+        {carregar.isPending && (
           <div className="progresso">
             <span className="spinner" /> O robô está consultando o portal do BCB trimestre a trimestre (≈ 30 s a 2 min).
           </div>
         )}
         {avisoHistorico && <div className="aviso aviso-ok">{avisoHistorico}</div>}
-        {erro && <div className="aviso aviso-erro">{erro}</div>}
+        {erro && <div className="aviso aviso-erro">{mensagemDeErro(erro)}</div>}
+        {dashboard.isPending && <Carregando texto="Carregando dashboard…" />}
       </section>
 
       {vazio && (

@@ -1,7 +1,7 @@
-import type { Execucao, Indicador } from "../api";
-import { duracao, formatarValor, formatarVariacao } from "../formato";
+import type { Execucao, Indicador } from "../../api";
+import { StatusBadge } from "../../components/StatusBadge";
+import { duracao, formatarValor, formatarVariacao } from "../../lib/formato";
 import { ProgressoRobo } from "./ProgressoRobo";
-import { StatusBadge } from "./StatusBadge";
 
 // Indicadores em que queda é boa notícia (cor da variação invertida).
 const MENOR_EH_MELHOR = new Set(["indice_exclusao", "taxa_adm_media", "inadimplencia", "pre_inadimplencia"]);

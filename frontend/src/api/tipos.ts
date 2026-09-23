@@ -1,4 +1,4 @@
-// Cliente HTTP do backend + tipos espelhando os schemas do FastAPI.
+// Tipos espelhando os schemas do FastAPI (backend/app/schemas.py e services).
 
 export type Variacao = { tipo: "pct" | "pp"; valor: number } | null;
 
@@ -122,47 +122,3 @@ export interface ResultadoHistorico {
   fonte: string | null;
   tentativas: number;
 }
-
-export class ApiError extends Error {
-  constructor(public status: number, public codigo: string, mensagem: string) {
-    super(mensagem);
-  }
-}
-
-async function req<T>(url: string, init?: RequestInit): Promise<T> {
-  let r: Response;
-  try {
-    r = await fetch(url, { headers: { "Content-Type": "application/json" }, ...init });
-  } catch {
-    throw new ApiError(0, "SEM_CONEXAO", "Não foi possível conectar ao backend. Ele está rodando?");
-  }
-  const corpo = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    const detalhe = Array.isArray(corpo.detail)
-      ? corpo.detail.map((d: { msg: string }) => d.msg).join("; ")
-      : corpo.detail ?? `Erro HTTP ${r.status}`;
-    throw new ApiError(r.status, corpo.codigo ?? "ERRO", detalhe);
-  }
-  return corpo as T;
-}
-
-const post = <T,>(url: string, body?: unknown) =>
-  req<T>(url, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
-
-export const api = {
-  opcoes: () => req<Opcoes>("/api/opcoes"),
-  consultar: (body: { data_base: string; segmento: string; uf: string | null; forcar: boolean; em_segundo_plano?: boolean }) =>
-    post<Execucao>("/api/consultas", body),
-  obterConsulta: (id: number) => req<Execucao>(`/api/consultas/${id}`),
-  gerarMensagem: (body: { execucao_id: number; destinatario_nome: string; destinatario_numero: string }) =>
-    post<Mensagem>("/api/mensagens", body),
-  enviar: (id: number) => post<Mensagem>(`/api/mensagens/${id}/enviar`),
-  historico: () => req<HistoricoItem[]>("/api/historico"),
-  dashboard: (params: { segmento: string; uf: string | null; data_base: string | null }) => {
-    const q = new URLSearchParams({ segmento: params.segmento });
-    if (params.uf) q.set("uf", params.uf);
-    if (params.data_base) q.set("data_base", params.data_base);
-    return req<Dashboard>(`/api/dashboard?${q}`);
-  },
-  carregarHistorico: (trimestres: number) => post<ResultadoHistorico>("/api/dashboard/historico", { trimestres }),
-};

@@ -86,6 +86,9 @@ Nova consulta → Executar RPA (progresso ao vivo) → Visualizar dados → Gera
 | **tenacity** | Retentativa com *backoff* exponencial só para erros transitórios. |
 | **httpx** | Cliente HTTP para o plano B e para as APIs de WhatsApp. |
 | **React + Vite + TypeScript** | Interface simples com tipos espelhando a API. O build é servido pelo próprio FastAPI, então a demonstração sobe com um comando só. |
+| **React Router** | Cada tela tem endereço próprio (`/consulta/12`, `/dashboard?segmento=IMOVEIS&uf=SP`): links compartilháveis, botão "voltar" funcionando e o acompanhamento do robô sobrevive a um recarregamento da página. |
+| **TanStack Query** | Cache, estados de carregando/erro e *polling* declarativo (`refetchInterval` só enquanto o robô roda), no lugar de `useState` + `fetch` manuais. |
+| **Vitest + Testing Library** | Testes do frontend: formatação, componentes e o fluxo da consulta com um backend falso. |
 | **Recharts** | Gráficos declarativos em React, com tooltip e legenda prontos. É carregado **só quando a aba Dashboard é aberta** (*lazy loading*), para a tela inicial continuar leve. |
 | **WhatsApp: link oficial wa.me (padrão) + Cloud API da Meta** | O `wa.me` abre o WhatsApp de quem usa o sistema com a conversa e a mensagem prontas: não exige conta, token nem aprovação, respeita os termos de uso e quem confirma o envio é o próprio usuário. Para envio 100% automático, a integração com a Cloud API oficial da Meta já está pronta (`WHATSAPP_PROVIDER=meta`). A Twilio e o `mock` também estão disponíveis. Ver [justificativa](#justificativa-da-estratégia). |
 
@@ -293,8 +296,10 @@ de um spinner parado, a tela mostra cada etapa do robô **enquanto ela acontece*
 2. O robô roda em segundo plano (`BackgroundTasks` do FastAPI), numa sessão de banco própria.
 3. A cada passo, o robô chama `reportar("…")` (`app/progresso.py`). O orquestrador registra um
    *ouvinte* que grava a etapa em `execucoes.etapas`, com horário.
-4. O frontend consulta `GET /api/consultas/{id}` a cada 0,8 s (*polling*) e desenha a linha do tempo
-   até o status mudar.
+4. O frontend navega para `/consulta/{id}` e consulta `GET /api/consultas/{id}` a cada 0,8 s
+   (*polling* do TanStack Query, ligado só enquanto o status é `EM_EXECUCAO`) e desenha a linha do
+   tempo até o status mudar. Como o id está na URL, **recarregar a página no meio do robô retoma
+   o acompanhamento**.
 
 **Decisões**
 
@@ -333,7 +338,9 @@ de um spinner parado, a tela mostra cada etapa do robô **enquanto ela acontece*
 
 ## Dashboard
 
-Aba **Dashboard**, com filtros de **segmento**, **UF em destaque** e **trimestre de referência**:
+Aba **Dashboard**, com filtros de **segmento**, **UF em destaque** e **trimestre de referência**.
+Os filtros ficam na URL (ex.: `/dashboard?segmento=IMOVEIS&uf=SP`), então o link abre o dashboard
+já filtrado, e ao trocar de filtro os gráficos anteriores ficam na tela até os novos chegarem.
 
 | Elemento | O que mostra |
 |---|---|
@@ -447,19 +454,30 @@ Documentação interativa em `/docs`.
 
 ## Testes
 
-Dentro de `backend`:
+**Backend** (dentro de `backend`):
 
 ```bash
 .venv\Scripts\python -m pytest -q
 ```
 
-São 56 testes que rodam **sem internet**, usando dados reais do BCB gravados em
+**Frontend** (dentro de `frontend`):
+
+```bash
+npm test
+```
+
+No backend, são 56 testes que rodam **sem internet**, usando dados reais do BCB gravados em
 `tests/fixtures/`. Eles cobrem: tratamento (correção de unidades, dados incompletos, UF ausente),
 formatação da mensagem, retentativa e plano B, consulta sem resultado, erro inesperado,
 travas de duplicidade (processamento e envio), validação de entrada, integração com a Meta
 (com `respx`), o fluxo completo pela API, **série histórica e dashboard** (inclusive "carregar só
 o que falta") e **progresso em tempo real** (etapas gravadas, retentativas visíveis, modo em
 segundo plano e migração de banco antigo).
+
+No frontend, 9 testes cobrem a formatação (valores, variações com cor invertida, escape de HTML na
+prévia da mensagem), a linha do tempo do robô e o **fluxo completo da consulta**: com um backend
+falso, o teste clica em "Executar RPA", confere a navegação para `/consulta/7`, o progresso ao vivo
+e o resultado quando o robô termina.
 
 ---
 
@@ -491,9 +509,21 @@ backend/
   requirements.txt  .env.example
 frontend/
   src/
-    App.tsx  api.ts  formato.ts  styles.css
-    components/ ConsultaForm, ProgressoRobo, Resultado, MensagemPainel,
-                Dashboard, Graficos, Historico, StatusBadge
+    main.tsx             # QueryClient + Router
+    App.tsx              # rotas e layout (menu)
+    api/
+      http.ts            # fetch + ApiError
+      tipos.ts           # tipos espelhando os schemas do backend
+      chaves.ts          # chaves do cache do TanStack Query
+      index.ts           # endpoints
+    features/            # organizado por funcionalidade
+      consulta/          # PaginaConsulta, ConsultaForm, ProgressoRobo, Resultado,
+                         # MensagemPainel, hooks.ts (+ testes)
+      dashboard/         # PaginaDashboard, Graficos, hooks.ts
+      historico/         # PaginaHistorico
+    components/          # compartilhados: StatusBadge, Carregando
+    lib/formato.ts       # formatação pt-BR (+ testes)
+    styles.css
 ```
 
 ---
@@ -524,6 +554,9 @@ frontend/
 - **Cores dos gráficos legíveis para todos:** em vez de escolher cores "no olho", a paleta foi
   validada por script (contraste com o fundo e separação para os tipos de daltonismo), nos modos
   claro e escuro, antes de ser usada.
+- **Testes do front sem memória:** em paralelo, cada arquivo de teste sobe seu próprio jsdom, e o
+  Windows falhava ao reservar memória para todos ao mesmo tempo. Os arquivos passaram a rodar um
+  de cada vez (`fileParallelism: false`), sem perder o isolamento entre eles.
 
 ---
 
@@ -542,6 +575,7 @@ frontend/
   (consentimento e opt-out dos destinatários, retenção dos dados).
 - **Observabilidade:** logs estruturados em JSON, métricas (tempo de execução, taxa de falha)
   e alertas; *tracing*.
-- **Containers** (Docker com a imagem oficial do Playwright), CI/CD rodando testes e lint.
+- **Containers** (Docker com a imagem oficial do Playwright), CI/CD rodando os testes do backend e
+  do frontend, lint e testes de ponta a ponta (Playwright também no front).
 - **Monitoramento da fonte:** um teste diário contra o portal real que alerta se o layout mudar.
 - **Rate limit e circuit breaker** nas chamadas externas.

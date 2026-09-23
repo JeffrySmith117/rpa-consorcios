@@ -21,7 +21,7 @@ import {
   YAxis,
 } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import { formatarValor } from "../formato";
+import { formatarValor } from "../../lib/formato";
 
 export type Unidade = "un" | "R$" | "%" | "meses";
 

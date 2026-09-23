@@ -1,50 +1,49 @@
 import { useState } from "react";
-import { api, ApiError, type Execucao, type Mensagem } from "../api";
-import { dataHora, telefone, whatsappParaHtml } from "../formato";
-import { StatusBadge } from "./StatusBadge";
+import type { Execucao, Mensagem } from "../../api";
+import { StatusBadge } from "../../components/StatusBadge";
+import { dataHora, mensagemDeErro, telefone, whatsappParaHtml } from "../../lib/formato";
+import { useEnviarMensagem, useGerarMensagem } from "./hooks";
 
 interface Props {
   execucao: Execucao;
   provedor: string;
 }
 
-const linkWhatsApp = (m: Mensagem | null) =>
+const linkWhatsApp = (m: Mensagem | null | undefined) =>
   m?.provedor === "link" && m.provedor_message_id?.startsWith("https://wa.me/") ? m.provedor_message_id : null;
 
 export function MensagemPainel({ execucao, provedor }: Props) {
   const [nome, setNome] = useState("");
   const [numero, setNumero] = useState("");
   const [mensagem, setMensagem] = useState<Mensagem | null>(null);
-  const [ocupado, setOcupado] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const gerar = useGerarMensagem();
+  const enviar = useEnviarMensagem();
 
-  async function acao(fn: () => Promise<Mensagem>) {
-    setOcupado(true);
-    setErro(null);
-    try {
-      const m = await fn();
-      setMensagem(m);
-      return m;
-    } catch (e) {
-      setErro(e instanceof ApiError ? e.message : String(e));
-      return null;
-    } finally {
-      setOcupado(false);
-    }
+  const ocupado = gerar.isPending || enviar.isPending;
+  const erro = gerar.error ?? enviar.error;
+
+  function aoGerar() {
+    enviar.reset();
+    gerar.mutate(
+      { execucao_id: execucao.id, destinatario_nome: nome, destinatario_numero: numero },
+      { onSuccess: setMensagem },
+    );
   }
 
-  const gerar = () =>
-    acao(() => api.gerarMensagem({ execucao_id: execucao.id, destinatario_nome: nome, destinatario_numero: numero }));
-
-  async function enviar() {
+  function aoEnviar() {
     if (!mensagem) return;
     // No modo "link", a aba é aberta já no clique (senão o navegador bloqueia
     // como pop-up) e recebe o endereço do WhatsApp quando o backend responde.
     const aba = provedor === "link" ? window.open("", "_blank") : null;
-    const m = await acao(() => api.enviar(mensagem.id));
-    const url = linkWhatsApp(m);
-    if (aba && url) aba.location.href = url;
-    else aba?.close();
+    enviar.mutate(mensagem.id, {
+      onSuccess: (m) => {
+        setMensagem(m);
+        const url = linkWhatsApp(m);
+        if (aba && url) aba.location.href = url;
+        else aba?.close();
+      },
+      onError: () => aba?.close(),
+    });
   }
 
   const podeEnviar = mensagem && (mensagem.status === "GERADA" || mensagem.status === "ERRO");
@@ -57,7 +56,7 @@ export function MensagemPainel({ execucao, provedor }: Props) {
         className="grade-form"
         onSubmit={(e) => {
           e.preventDefault();
-          gerar();
+          aoGerar();
         }}
       >
         <label>
@@ -75,7 +74,7 @@ export function MensagemPainel({ execucao, provedor }: Props) {
         </div>
       </form>
 
-      {erro && <div className="aviso aviso-erro">{erro}</div>}
+      {erro && <div className="aviso aviso-erro">{mensagemDeErro(erro)}</div>}
 
       {mensagem && (
         <div className="envio">
@@ -107,7 +106,7 @@ export function MensagemPainel({ execucao, provedor }: Props) {
                 <p className="meta">Confirme o envio tocando em Enviar no WhatsApp.</p>
               </>
             ) : (
-              <button onClick={enviar} disabled={ocupado || !podeEnviar}>
+              <button onClick={aoEnviar} disabled={ocupado || !podeEnviar}>
                 {mensagem.status === "ERRO" ? "Tentar enviar de novo" : "Enviar WhatsApp"}
               </button>
             )}

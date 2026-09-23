@@ -1,31 +1,27 @@
-import { Fragment, useEffect, useState } from "react";
-import { api, ApiError, type HistoricoItem } from "../api";
-import { dataHora, duracao, formatarValor, referencia, telefone } from "../formato";
-import { StatusBadge } from "./StatusBadge";
+import { useQuery } from "@tanstack/react-query";
+import { Fragment, useState } from "react";
+import { Link } from "react-router-dom";
+import { api } from "../../api";
+import { chaves } from "../../api/chaves";
+import { Carregando } from "../../components/Carregando";
+import { StatusBadge } from "../../components/StatusBadge";
+import { dataHora, duracao, formatarValor, mensagemDeErro, referencia, telefone } from "../../lib/formato";
 
-export function Historico() {
-  const [itens, setItens] = useState<HistoricoItem[] | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+export function PaginaHistorico() {
+  const historico = useQuery({ queryKey: chaves.historico, queryFn: api.historico });
   const [aberto, setAberto] = useState<number | null>(null);
-
-  const carregar = () => {
-    setErro(null);
-    api
-      .historico()
-      .then(setItens)
-      .catch((e) => setErro(e instanceof ApiError ? e.message : String(e)));
-  };
-  useEffect(carregar, []);
+  const itens = historico.data;
 
   return (
     <section className="card">
       <div className="titulo-linha">
         <h2>Histórico de execuções</h2>
-        <button className="secundario" onClick={carregar}>
-          Atualizar
+        <button className="secundario" onClick={() => historico.refetch()} disabled={historico.isFetching}>
+          {historico.isFetching ? "Atualizando…" : "Atualizar"}
         </button>
       </div>
-      {erro && <div className="aviso aviso-erro">{erro}</div>}
+      {historico.isPending && <Carregando />}
+      {historico.isError && <div className="aviso aviso-erro">{mensagemDeErro(historico.error)}</div>}
       {itens?.length === 0 && <p>Nenhuma execução ainda.</p>}
       {!!itens?.length && (
         <div className="tabela-wrap">
@@ -70,7 +66,8 @@ export function Historico() {
                     <tr className="detalhe">
                       <td colSpan={6}>
                         <p className="meta">
-                          Duração: {duracao(e.iniciado_em, e.finalizado_em)} · finalizada em {dataHora(e.finalizado_em)}
+                          Duração: {duracao(e.iniciado_em, e.finalizado_em)} · finalizada em {dataHora(e.finalizado_em)} ·{" "}
+                          <Link to={`/consulta/${e.id}`}>abrir execução</Link>
                         </p>
                         {e.erro && <div className="aviso aviso-erro">{e.erro}</div>}
                         {e.dados && (

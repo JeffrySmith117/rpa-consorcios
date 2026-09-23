@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Etapa } from "../api";
+import type { Etapa } from "../../api";
 
 interface Props {
   etapas: Etapa[];

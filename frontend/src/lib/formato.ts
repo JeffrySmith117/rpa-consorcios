@@ -1,4 +1,4 @@
-import type { Variacao } from "./api";
+import type { Variacao } from "../api";
 
 const nf = (casas: number) =>
   new Intl.NumberFormat("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
@@ -50,3 +50,6 @@ export function whatsappParaHtml(texto: string): string {
     .replace(/(^|\s)_([^_\n]+)_/g, "$1<em>$2</em>")
     .replace(/\n/g, "<br>");
 }
+
+/** Texto amigável para qualquer erro vindo da API ou da rede. */
+export const mensagemDeErro = (erro: unknown) => (erro instanceof Error ? erro.message : String(erro));
