@@ -1,0 +1,11 @@
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+playwright==1.63.0
+httpx==0.28.1
+pydantic-settings==2.15.0
+SQLAlchemy==2.0.54
+tenacity==9.1.4
+
+# testes
+pytest==9.1.1
+respx==0.23.1

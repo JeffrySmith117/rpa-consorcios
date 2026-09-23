@@ -1,0 +1,1002 @@
+[
+ {
+  "DataBase": 202603,
+  "IdMetrica": "5",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras com cotas ativas de imóveis",
+  "Valor": 72.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "1",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras de Consórcio Autorizadas e Ativas pelo Unicad",
+  "Valor": 132.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "2",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras de Consórcio om grupos e cotas ativas",
+  "Valor": 125.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "6",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras com cotas ativas de veículos pesados",
+  "Valor": 56.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "7",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras com cotas ativas de automóveis",
+  "Valor": 110.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "8",
+  "Grupo": "Administradoras de Consórcio",
+  "Metrica": "Administradoras com cotas ativas de motocicletas",
+  "Valor": 68.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "3",
+  "Grupo": "PLA",
+  "Metrica": "Patrimônio Líquido Ajustado - PLA - Total das Administradoras de Consórcios",
+  "Valor": 24.16,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "4",
+  "Grupo": "DT",
+  "Metrica": "Disponibilidade Total - DT - Total das Administradoras de Consórcios",
+  "Valor": 23.26,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "9",
+  "Grupo": "Grupos ativos",
+  "Metrica": "Grupos de Consórcio ativos - Total",
+  "Valor": 16374.0,
+  "Unidade": "unidade"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "10",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Total",
+  "Valor": 13002.1,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "11",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Imóveis",
+  "Valor": 2977.54,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "12",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Veículos Pesados",
+  "Valor": 927.14,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "13",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Automóveis",
+  "Valor": 5447.07,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "14",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Motocicletas",
+  "Valor": 3263.31,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "15",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas Ativas - Outros bens móveis duráveis (eletroeletrônicos, eletrodomésticos, móveis e outros)",
+  "Valor": 255.75,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "16",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Serviços",
+  "Valor": 131.27,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "17",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Ônibus e Micro-ônibus (cód. 21)",
+  "Valor": 9.82,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "18",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas Ativas - Caminhões e Caminhões-Tratores  (cód. 22)",
+  "Valor": 372.85,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "19",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Equipamentos Rodoviários e Agrícolas  (cód. 23)",
+  "Valor": 55.66,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "20",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas ativas - Máquinas Agrícolas  (cód. 24)",
+  "Valor": 487.5,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "21",
+  "Grupo": "Cotas ativas",
+  "Metrica": "Cotas Ativas - Embarcações e Aeronaves (cód. 25)",
+  "Valor": 1.3,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "22",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Total",
+  "Valor": 156.95,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "23",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Imóveis",
+  "Valor": 66.39,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "24",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Automóveis",
+  "Valor": 49.67,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "25",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Motocicletas",
+  "Valor": 10.38,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "26",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Veículos Automotores (veículos pesados, veículos comerciais leves e motocicletas) -",
+  "Valor": 89.78,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "27",
+  "Grupo": "Carteira",
+  "Metrica": "Carteira - Outros Bens Móveis e Serviços",
+  "Valor": 769.56,
+  "Unidade": "R$ milhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "28",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - Total",
+  "Valor": 1826.96,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "29",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Sorteio - Total",
+  "Valor": 375.57,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "30",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Lance - Total",
+  "Valor": 1451.39,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "31",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - Imóveis",
+  "Valor": 160.29,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "32",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Sorteio - Imóveis",
+  "Valor": 31.96,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "33",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Lance - Imóveis",
+  "Valor": 128.33,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "34",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - Automóveis",
+  "Valor": 811.71,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "35",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Sorteio - Automóveis",
+  "Valor": 156.26,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "36",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Lance - Automóveis",
+  "Valor": 655.44,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "37",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - Motocicletas",
+  "Valor": 647.1,
+  "Unidade": "mi"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "38",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Sorteio - Motocicletas",
+  "Valor": 116.89,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "39",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas no últimos 12 meses - por Lance - Motocicletas",
+  "Valor": 530.21,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "40",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - Outros Bens Móveis e Serviços",
+  "Valor": 207.87,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "41",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - por Sorteio - Outros Bens Móveis e Serviços",
+  "Valor": 70.46,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "42",
+  "Grupo": "Ativos Contemplados",
+  "Metrica": "Cotas ativas contempladas nos últimos 12 meses - por Lance - Outros Bens Móveis e Serviços",
+  "Valor": 137.41,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "43",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Cotas excluídas - Total",
+  "Valor": 12409.08,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "44",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Excluídos Contemplados - Total (Sorteio)",
+  "Valor": 1708.0,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "45",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Cotas excluídas - Total - Imóveis",
+  "Valor": 3612.82,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "46",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Cotas excluídas - Total - Automóveis",
+  "Valor": 4666.06,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "47",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Cotas excluídas - Total - Motocicletas",
+  "Valor": 3090.99,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "48",
+  "Grupo": "Cotas excluídas",
+  "Metrica": "Cotas excluídas - Total - Outros Bens Móveis e Serviços",
+  "Valor": 1039.48,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "49",
+  "Grupo": "Índice de Exclusão",
+  "Metrica": "Índice de Exclusão - Total",
+  "Valor": 48.83,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "50",
+  "Grupo": "Índice de Exclusão",
+  "Metrica": "Índice de Exclusão - IE - Imóveis",
+  "Valor": 54.82,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "51",
+  "Grupo": "Índice de Exclusão",
+  "Metrica": "Índice de Exclusão - IE - Automóveis",
+  "Valor": 46.14,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "52",
+  "Grupo": "Índice de Exclusão",
+  "Metrica": "Índice de Exclusão - IE - Motocicletas",
+  "Valor": 48.64,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "53",
+  "Grupo": "Índice de Exclusão",
+  "Metrica": "Índice de Exclusão - IE - Outros Bens Móveis e Serviços",
+  "Valor": 44.16,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "54",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas Comercializadas nos últimos 12 meses - Total",
+  "Valor": 5489.09,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "55",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas comercializadas nos últimos 12 meses - Imóveis",
+  "Valor": 1526.25,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "56",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas comercializadas nos últimos 12 meses - Veículos Pesados",
+  "Valor": 194.34,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "57",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas comercializadas nos últimos 12 meses - Automóveis",
+  "Valor": 1985.14,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "58",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas comercializadas nos últimos 12 meses - Motocicletas",
+  "Valor": 1474.07,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "59",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas Comercializadas nos últimos 12 meses - Eletroeletrônicos, eletrodomésticos, mobiliário e outros bens móveis duráveis",
+  "Valor": 240.26,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "60",
+  "Grupo": "Cotas Comercializadas",
+  "Metrica": "Cotas comercializadas nos últimos 12 meses - Serviços",
+  "Valor": 69.04,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "61",
+  "Grupo": "Inadimplência",
+  "Metrica": "Índice de Inadimplência - Total",
+  "Valor": 2.25,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "62",
+  "Grupo": "Pré Inadimplência",
+  "Metrica": "Índice de Pré Inadimplência - Total",
+  "Valor": 3.01,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "63",
+  "Grupo": "Recursos Coletados",
+  "Metrica": "Recursos Coletados nos Últimos 12 meses - Total",
+  "Valor": 148.08,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "64",
+  "Grupo": "Recursos Coletados",
+  "Metrica": "Recursos Coletados nos últimos 12 meses - Imóveis",
+  "Valor": 40.85,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "65",
+  "Grupo": "Recursos Coletados",
+  "Metrica": "Recursos Coletados nos últimos 12 meses - Automóveis",
+  "Valor": 62.99,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "66",
+  "Grupo": "Recursos Coletados",
+  "Metrica": "Recursos Coletados nos últimos 12 meses - Motocicletas",
+  "Valor": 14.15,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "67",
+  "Grupo": "Recursos Coletados",
+  "Metrica": "Recursos Coletados nos últimos 12 meses - Outros Bens Móveis e Serviços",
+  "Valor": 30.09,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "68",
+  "Grupo": "Recursos a Coletar",
+  "Metrica": "Recursos a Coletar - Total",
+  "Valor": 888.6,
+  "Unidade": "R$ milhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "69",
+  "Grupo": "Recursos a Coletar",
+  "Metrica": "Recursos a Coletar - Imóveis",
+  "Valor": 532.42,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "70",
+  "Grupo": "Recursos a Coletar",
+  "Metrica": "Recursos a Coletar - Automóveis",
+  "Valor": 207.08,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "71",
+  "Grupo": "Recursos a Coletar",
+  "Metrica": "Recursos a Coletar - Motocicletas",
+  "Valor": 31.42,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "72",
+  "Grupo": "Recursos a Coletar",
+  "Metrica": "Recursos a Coletar - Outros Bens Móveis e Serviços",
+  "Valor": 117.68,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "73",
+  "Grupo": "RNP",
+  "Metrica": "RNP - Saldo Total",
+  "Valor": 2924.21,
+  "Unidade": "R$ milhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "74",
+  "Grupo": "RNP",
+  "Metrica": "RNP - Valor \"Taxável\" -",
+  "Valor": 2447.56,
+  "Unidade": "R$ milhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "75",
+  "Grupo": "RNP",
+  "Metrica": "RNP - Taxa Permanência Mensal Média",
+  "Valor": 4.55,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "76",
+  "Grupo": "RNP",
+  "Metrica": "RNP - Valor total de Taxa de Permanência cobrada nos últimos 12 meses",
+  "Valor": 1185.18,
+  "Unidade": "R$ milhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "77",
+  "Grupo": "RNP",
+  "Metrica": "RNP - Valores devolvidos via SVR",
+  "Valor": 1178.31,
+  "Unidade": "R$ bilhões"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "78",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - TOTAL",
+  "Valor": 18.88,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "79",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Imóveis",
+  "Valor": 21.15,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "80",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Veículos Pesados",
+  "Valor": 12.65,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "81",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Automóveis",
+  "Valor": 15.0,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "82",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Motocicletas",
+  "Valor": 21.09,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "83",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Outros Bens Móveis",
+  "Valor": 28.81,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "84",
+  "Grupo": "Taxa de Administração",
+  "Metrica": "Taxa Média Adm. dos grupos constituídos nos últimos 12 meses - Serviços",
+  "Valor": 14.0,
+  "Unidade": "%"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "85",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - TOTAL",
+  "Valor": 106.65,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "86",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Imóveis",
+  "Valor": 204.26,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "87",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Veículos Pesados",
+  "Valor": 351.29,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "88",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Automóveis",
+  "Valor": 76.35,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "89",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Motocicletas",
+  "Valor": 20.55,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "90",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Outros bens móveis duráveis (eletroeletrônicos, eletrodomésticos, móveis e outros)",
+  "Valor": 8.93,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "91",
+  "Grupo": "Valor Médio",
+  "Metrica": "Valor Médio dos Créditos dos grupos constituídos nos últimos 12 meses - Serviços",
+  "Valor": 16.42,
+  "Unidade": "R$ mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "92",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - TOTAL",
+  "Valor": 168.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "93",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - Imóveis",
+  "Valor": 217.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "94",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constiotuídos no ano - Veículos Pesados",
+  "Valor": 111.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "95",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - Automóveis",
+  "Valor": 90.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "96",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - Motocicletas",
+  "Valor": 63.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "97",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - Outros bens móveis duráveis (eletroeletrônicos, eletrodomésticos, móveis e outros)",
+  "Valor": 59.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "98",
+  "Grupo": "Prazo Médio",
+  "Metrica": "Prazo médio dos grupos constituídos nos últimos 12 meses - Serviços",
+  "Valor": 40.0,
+  "Unidade": "meses"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "99",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - SP",
+  "Valor": 2882.88,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "100",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - MG",
+  "Valor": 1316.7,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "101",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - PR",
+  "Valor": 1174.96,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "102",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - BA",
+  "Valor": 885.46,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "103",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - RS",
+  "Valor": 785.68,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "104",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - SC",
+  "Valor": 625.3,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "105",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - GO",
+  "Valor": 515.22,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "106",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - RJ",
+  "Valor": 503.82,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "107",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - PA",
+  "Valor": 458.77,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "108",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - MT",
+  "Valor": 453.96,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "109",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - MA",
+  "Valor": 406.74,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "110",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - PE",
+  "Valor": 405.12,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "111",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - CE",
+  "Valor": 386.19,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "112",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - ES",
+  "Valor": 289.49,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "113",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - MS",
+  "Valor": 248.56,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "114",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - PI",
+  "Valor": 231.63,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "115",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - PB",
+  "Valor": 203.24,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "116",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - DF",
+  "Valor": 193.92,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "117",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - AL",
+  "Valor": 178.55,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "118",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - RO",
+  "Valor": 177.38,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "119",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - TO",
+  "Valor": 153.83,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "120",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - RN",
+  "Valor": 149.53,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "121",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - SE",
+  "Valor": 142.14,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "122",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - AM",
+  "Valor": 131.62,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "123",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - AC",
+  "Valor": 48.58,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "124",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - AP",
+  "Valor": 27.54,
+  "Unidade": "mil"
+ },
+ {
+  "DataBase": 202603,
+  "IdMetrica": "125",
+  "Grupo": "Cotas Ativas por Estado",
+  "Metrica": "Cotas Ativas por Estado - RR",
+  "Valor": 25.62,
+  "Unidade": "mil"
+ }
+]

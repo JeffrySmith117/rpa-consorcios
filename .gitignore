@@ -1,0 +1,24 @@
+# Segredos
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Dados e logs gerados em execução
+backend/data/
+backend/logs/
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
